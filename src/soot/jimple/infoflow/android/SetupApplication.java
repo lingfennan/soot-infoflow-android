@@ -62,6 +62,7 @@ import soot.jimple.infoflow.rifl.RIFLSourceSinkDefinitionProvider;
 import soot.jimple.infoflow.source.data.ISourceSinkDefinitionProvider;
 import soot.jimple.infoflow.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
+import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.options.Options;
 
 public class SetupApplication {
@@ -786,6 +787,34 @@ public class SetupApplication {
 	 */
 	public InfoflowResults runInfoflow() {
 		return runInfoflow(null);
+	}
+	
+	public CallGraph runCallGraph() {
+		if (this.sourceSinkProvider == null)
+			throw new RuntimeException("Sources and/or sinks not calculated yet");
+
+		System.out.println("Running call graph analysis on " + apkFileLocation );
+		Infoflow info;
+		if (cfgFactory == null)
+			info = new Infoflow(androidJar, forceAndroidJar, null,
+					new DefaultPathBuilderFactory(config.getPathBuilder(),
+							config.getComputeResultPaths()));
+		else
+			info = new Infoflow(androidJar, forceAndroidJar, cfgFactory,
+					new DefaultPathBuilderFactory(config.getPathBuilder(),
+							config.getComputeResultPaths()));
+
+		final String path;
+		if (forceAndroidJar)
+			path = androidJar;
+		else
+			path = Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
+
+		System.out.println("Starting infoflow computation...");
+		info.setConfig(config);
+		info.setSootConfig(sootConfig);
+		
+		return info.computeCallGraph(apkFileLocation, path, entryPointCreator, sourceSinkManager);
 	}
 
 	/**
