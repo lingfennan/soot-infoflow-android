@@ -29,8 +29,9 @@ public class SootConfigForAndroid implements IInfoflowConfig{
 		excludeList.add("soot.*");
 		excludeList.add("javax.servlet.*");
 		options.set_exclude(excludeList);
-		Options.v().set_no_bodies_for_excluded(true);
+		options.set_no_bodies_for_excluded(true);
 		options.set_output_format(Options.output_format_none);
+		options.set_process_multiple_dex(true);
 	}
 
 }
